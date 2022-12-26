@@ -6,8 +6,35 @@
 #include<conio.h>
 #include<Windows.h>
 #include<map>
+#include<regex>
 #define EOL '\n'
 using namespace std;
+
+bool checking_file_name(string& stroka)
+{
+	regex regular("([\\w]+[.][t][x][t])");
+	if (regex_match(stroka.c_str(), regular)) return true;
+	else return false;
+}
+
+string entering_file_name()
+{
+	bool flag = true;
+	while (flag)
+	{
+		string name;
+		cout << "Введите имя файла в котором будет производиться поиск элементов: " << endl;
+		cin >> name;
+		if (checking_file_name(name)) {
+			flag = false;
+			return name;
+		}
+		else {
+			flag = true;
+			cout << "Некорректное имя файла!" << endl;
+		}
+	}
+}
 
 enum ConsoleColor
 {
@@ -217,21 +244,27 @@ int main()
 	bool iteration = true;
 	while (iteration)
 	{
-		ifstream in("Kapli_.txt");
 		SetConsoleCP(1251);
 		SetConsoleOutputCP(1251);
-		string text = input(in);
-		string key = slovo();
-		vector<int> position = positions(text, key);
-		if (position.size() > 0)
-		{
-			for (int i = 0; i < position.size(); i++)
-				cout << position[i] << ' ';
-			cout << endl;
-			output(text, position);
+		static string name = entering_file_name();
+		ifstream in(name);
+		if (in.is_open()) {
+			string text = input(in);
+			string key = slovo();
+			vector<int> position = positions(text, key);
+			if (position.size() > 0)
+			{
+				for (int i = 0; i < position.size(); i++)
+					cout << position[i] << ' ';
+				cout << endl;
+				output(text, position);
+			}
+			else cout << "Not found" << endl << endl;
+			iteration = continue_check();
 		}
-		else cout << "Not found" << endl << endl;
-
-		iteration = continue_check();
+		else {
+			cout << "Файла с таким именем не существует!" << endl;
+			iteration = continue_check();
+		}
 	}
 }	
